@@ -1,31 +1,32 @@
 # MusRoyale Android App
 
-## Overview
-This folder contains the Android client for MusRoyale, built with Kotlin and Android Studio. It provides the mobile user interface to connect to the TCP server, join or create games, and play Mus in real time.
+Karpeta honek **MusRoyale** proiektuaren **Android bezeroa** biltzen du (Kotlin). Aplikazio honek jokalariaren interfazea eskaintzen du eta **TCP zerbitzariarekin** konektatzen da partida bat sortu/elkartu eta jokatzeko.
 
-## How to run
+## Nola abiarazi (Android)
 
-### Option 1: Android Studio
-1. Open the project located in `MusRoyale_AndroidApp/MusRoyaleAndroid/` with Android Studio.
-2. Wait for Gradle sync to finish.
-3. Select a device (emulator or physical device).
-4. Press **Run**.
+### Aukera 1: Android Studio (gomendatua)
+1. Ireki Android Studio.
+2. Ireki proiektua:
+   - `MusRoyale_AndroidApp/MusRoyaleAndroid/`
+3. Itxaron **Gradle Sync** amaitu arte.
+4. Aukeratu gailua (emuladorea edo gailu fisikoa).
+5. Sakatu **Run** (▶).
 
-### Option 2: Command line (Gradle)
-From `MusRoyale_AndroidApp/MusRoyaleAndroid/`:
-
+### Aukera 2: Gradle CLI (terminaletik)
 ```bash
+cd MusRoyale_AndroidApp/MusRoyaleAndroid
 ./gradlew assembleDebug
 ```
 
-## Configuration
-Before running, ensure the app is configured to point to the TCP server:
-- Server host: your PC IP / hostname
-- Server port: 13000
+(Windows-en: `gradlew.bat assembleDebug`.)
 
-If you run the server and the Android device on the same machine/emulator:
-- Use `10.0.2.2` as host for Android emulator
+## Konexio konfigurazioa (host / port)
 
----
+Aplikazioak TCP zerbitzarira konektatzeko **host** eta **port** balioak behar ditu:
 
-This README is intentionally brief; more detailed protocol/game documentation lives closer to the server implementation.
+- **Portua (zerbitzarian):** `13000`
+- **Host-a:** zerbitzaria exekutatzen ari den makinaren IP/hostname-a
+
+### Android Emulator oharra
+Zerbitzaria zure PC-an badago eta aplikazioa **emuladorean** exekutatzen baduzu:
+- erabili **`10.0.2.2`** host gisa (PC-ko localhost-era heltzeko).
