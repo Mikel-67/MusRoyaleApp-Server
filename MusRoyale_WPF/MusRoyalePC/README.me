@@ -1,0 +1,55 @@
+# 🃏 Mus Royale - C# WPF Edition
+
+![Build Status](https://img.shields.io/badge/build-passing-brightgreen?style=for-the-badge)
+![Platform](https://img.shields.io/badge/platform-Windows-0078d7?style=for-the-badge&logo=windows)
+![Framework](https://img.shields.io/badge/.NET-WPF-512bd4?style=for-the-badge&logo=dotnet)
+![License](https://img.shields.io/badge/license-MIT-green?style=for-the-badge)
+
+**Mus Royale** es una plataforma de juego competitiva para Windows que recrea fielmente el **Mus**, el juego de cartas más estratégico y popular de la cultura hispana. Desarrollado íntegramente en **C# y WPF**, el proyecto combina una interfaz moderna con una arquitectura cliente-servidor robusta.
+
+---
+
+## 🚀 Características del Sistema
+
+### 🔐 Seguridad y Gestión de Usuarios
+El sistema prioriza la integridad de los datos de los jugadores mediante un flujo de autenticación profesional:
+* **Registro y Login:** Interfaz intuitiva con validaciones en tiempo real.
+* **Contraseñas Hasheadas:** Seguridad de grado bancario. Las contraseñas se procesan mediante un algoritmo de **hashing** antes de almacenarse, garantizando que nunca se guarden en texto plano.
+* **Gestión de Perfil:** Panel personalizado donde el usuario puede editar su información, avatar y consultar sus estadísticas de juego.
+
+### 👥 Capa Social y Networking
+* **Sistema de Amigos:** Buscador de usuarios integrado. Puedes enviar solicitudes de amistad, aceptarlas o eliminarlas.
+* **Chat en Tiempo Real:** Comunicación fluida mediante un sistema de mensajería privada (AT) con tus amigos para coordinar estrategias antes de la partida.
+* **Estado de Conexión:** Visualiza quién está online y disponible para jugar.
+
+### 🎮 Modos de Juego Dinámicos
+1.  **Partida Rápida (Matchmaking):** Un algoritmo busca jugadores disponibles de forma aleatoria para empezar a jugar de inmediato.
+2.  **Modo Dúos:** Invita a un amigo específico de tu lista. El sistema espera a que el invitado acepte y ambos confirmen para emparejaros en la misma mesa.
+3.  **Partida Privada (Sistema de Códigos):** * El **Líder** crea una sala y genera un **código único**.
+    * Los invitados introducen dicho código para acceder a la sala privada. Ideal para torneos locales o grupos cerrados.
+
+---
+
+## 🎴 Reglas del Juego: El Mus en Mus Royale
+
+La partida se desarrolla entre 4 jugadores (por parejas) siguiendo los lances clásicos:
+
+1.  **El Mus:** Fase inicial donde los jugadores deciden si quieren descartar cartas para mejorar su mano. Si hay unanimidad, se produce el descarte.
+2.  **Grande:** Se apuesta por quién tiene las cartas de mayor valor.
+3.  **Chica:** Se apuesta por quién tiene las cartas de menor valor.
+4.  **Pares:** Se comprueba quién tiene cartas iguales (Pareja, Medias o Duples).
+5.  **Juego:** Se compite por sumar 31 puntos o más. Si nadie llega, se juega al "Punto".
+
+*El sistema de Mus Royale automatiza el conteo de piedras (puntos) y detecta las jugadas ganadoras de forma instantánea.*
+
+---
+
+## 🛠️ Guía de Instalación y Despliegue
+
+Sigue estos pasos detallados para configurar el entorno de desarrollo y ejecutar la aplicación.
+
+### 1. Clonar el Repositorio
+Copia el proyecto a tu máquina local:
+```bash
+git clone [https://github.com/tu-usuario/mus-royale.git](https://github.com/tu-usuario/mus-royale.git)
+cd mus-royale
