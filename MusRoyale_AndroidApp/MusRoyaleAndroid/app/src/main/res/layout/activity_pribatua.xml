@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#D7CCC8"
+    tools:context=".PrivateMatchSetupActivity">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@drawable/fondo1">
+
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginTop="40dp"
+            android:scrollbars="none">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:orientation="vertical"
+                android:padding="20dp">
+
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/btnBack"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="20dp"
+                    android:layout_gravity="start"
+                    app:cardCornerRadius="12dp"
+                    app:cardElevation="2dp"
+                    app:cardBackgroundColor="#F5F5DC"
+                    app:strokeColor="#C5A059"
+                    app:strokeWidth="1dp">
+                    <LinearLayout
+                        android:layout_width="125dp"
+                        android:layout_height="45dp"
+                        android:gravity="center"
+                        android:orientation="horizontal">
+                        <ImageView
+                            android:layout_width="20dp"
+                            android:layout_height="20dp"
+                            android:layout_marginEnd="8dp"
+                            android:src="@drawable/atras"
+                            app:tint="#5D4037" />
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Atzera"
+                            android:textColor="#5D4037"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <com.google.android.material.card.MaterialCardView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:cardCornerRadius="28dp"
+                    app:cardElevation="8dp"
+                    app:cardBackgroundColor="#E6D5B8"
+                    app:strokeColor="#BCAAA4"
+                    app:strokeWidth="1.5dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="28dp">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Gela Pribatua"
+                            android:textColor="#3E2723"
+                            android:textSize="24sp"
+                            android:fontFamily="serif"
+                            android:textStyle="bold" />
+
+                        <View
+                            android:layout_width="40dp"
+                            android:layout_height="3dp"
+                            android:layout_marginTop="4dp"
+                            android:background="#C5A059" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="24dp"
+                            android:text="Sartu Kodea"
+                            android:textColor="#5D4037"
+                            android:textAllCaps="true"
+                            android:textSize="12sp"
+                            android:textStyle="bold" />
+
+                        <EditText
+                            android:id="@+id/codeInput"
+                            android:layout_width="match_parent"
+                            android:layout_height="60dp"
+                            android:layout_marginTop="8dp"
+                            android:hint="0000"
+                            android:gravity="center"
+                            android:inputType="number"
+                            android:maxLength="4"
+                            android:letterSpacing="0.3"
+                            android:textColor="#3E2723"
+                            android:textSize="22sp"
+                            android:background="@android:color/transparent"
+                            android:textStyle="bold" />
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btnJoin"
+                            android:layout_width="match_parent"
+                            android:layout_height="60dp"
+                            android:layout_marginTop="12dp"
+                            android:text="SARTU"
+                            android:textStyle="bold"
+                            app:backgroundTint="#5D4037"
+                            app:cornerRadius="16dp"
+                            android:textColor="#FFFFFF"/>
+
+                        <View
+                            android:layout_width="match_parent"
+                            android:layout_height="1dp"
+                            android:layout_marginVertical="24dp"
+                            android:background="#BCAAA4" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Gela Berria Sortu"
+                            android:textColor="#5D4037"
+                            android:textAllCaps="true"
+                            android:textSize="12sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="4dp"
+                            android:text="Konfiguratu partida eta sortu gela"
+                            android:textColor="#8B6F47"
+                            android:textSize="13sp" />
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btnCreate"
+                            android:layout_width="match_parent"
+                            android:layout_height="70dp"
+                            android:layout_marginTop="20dp"
+                            android:text="GELA SORTU"
+                            android:textSize="18sp"
+                            android:textStyle="bold"
+                            app:backgroundTint="#3E2723"
+                            app:cornerRadius="20dp"
+                            android:textColor="#E6D5B8"
+                            app:icon="@android:drawable/ic_menu_add"
+                            app:iconTint="#E6D5B8"
+                            app:iconGravity="textStart"/>
+
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+            </LinearLayout>
+        </ScrollView>
+    </RelativeLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

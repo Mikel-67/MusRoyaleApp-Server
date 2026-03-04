@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/fondo1">
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@drawable/borde_dorado_medieval"
+        android:alpha="0.8"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:padding="24dp"
+        android:gravity="center_horizontal">
+
+        <ImageView
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:layout_marginTop="32dp"
+            android:src="@android:drawable/btn_star_big_on"
+            app:tint="#FFD700" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="Sortu Torneoa"
+            android:textColor="#FFD700"
+            android:textSize="32sp"
+            android:textStyle="bold"
+            android:fontFamily="serif"
+            android:shadowColor="#000000"
+            android:shadowDx="2"
+            android:shadowDy="2"
+            android:shadowRadius="5" />
+
+        <Space
+            android:layout_width="match_parent"
+            android:layout_height="40dp" />
+
+        <EditText
+            android:id="@+id/etNombreTorneo"
+            android:layout_width="match_parent"
+            android:layout_height="55dp"
+            android:layout_marginBottom="16dp"
+            android:background="@drawable/bg_input_medieval"
+            android:hint="Torneoaren izen santua"
+            android:textColorHint="#AAAAAA"
+            android:textColor="#FFFFFF"
+            android:paddingHorizontal="16dp"
+            android:fontFamily="serif"
+            android:inputType="textCapSentences" />
+
+        <EditText
+            android:id="@+id/etMaxJugadores"
+            android:layout_width="match_parent"
+            android:layout_height="55dp"
+            android:layout_marginBottom="32dp"
+            android:background="@drawable/bg_input_medieval"
+            android:hint="Jokalarien erresuma kopurua"
+            android:textColorHint="#AAAAAA"
+            android:textColor="#FFFFFF"
+            android:paddingHorizontal="16dp"
+            android:fontFamily="serif"
+            android:inputType="number"
+            android:text="8" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnFinalizarCreacion"
+            android:layout_width="match_parent"
+            android:layout_height="65dp"
+            android:text="Sortu Torneoa"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:fontFamily="serif"
+            android:backgroundTint="@android:color/transparent"
+            android:textColor="#FFFFFF"
+            app:backgroundTintMode="src_over"
+            app:strokeColor="#FFD700"
+            app:strokeWidth="2dp"
+            app:cornerRadius="15dp"
+            android:background="@drawable/bg_button_medieval" />
+
+    </LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

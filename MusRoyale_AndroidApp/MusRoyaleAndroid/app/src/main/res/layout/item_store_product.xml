@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/rootAvatar"
+    android:layout_width="190dp"
+    android:layout_height="wrap_content"
+    android:layout_margin="8dp"
+    app:cardCornerRadius="18dp"
+    app:cardElevation="2dp"
+    app:cardBackgroundColor="@android:color/transparent">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/bg_avatar_card_light"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:padding="12dp">
+
+        <View
+            android:layout_width="30dp"
+            android:layout_height="3dp"
+            android:background="#F0F0F0"
+            android:layout_marginBottom="12dp"/>
+
+        <ImageView
+            android:id="@+id/imgAvatar"
+            android:layout_width="95dp"
+            android:layout_height="95dp"
+            android:src="@drawable/ic_avatar3"
+            android:scaleType="centerInside" />
+
+        <TextView
+            android:id="@+id/txtNombreAvatar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Guerrero"
+            android:textColor="@color/white"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:layout_marginTop="10dp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="BILDUMA BERRIA"
+            android:textColor="#9E9E9E"
+            android:textSize="10sp"
+            android:letterSpacing="0.05"
+            android:layout_marginBottom="14dp" />
+
+        <LinearLayout
+            android:id="@+id/btnComprarAvatar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/bg_button_precio"
+            android:gravity="center"
+            android:elevation="2dp"
+            android:paddingVertical="8dp">
+
+            <TextView
+                android:id="@+id/txtPrecioAvatar"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="500"
+                android:textColor="#000000"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+
+            <ImageView
+                android:layout_width="16dp"
+                android:layout_height="16dp"
+                android:layout_marginStart="6dp"
+                android:src="@drawable/oro" />
+        </LinearLayout>
+    </LinearLayout>
+</com.google.android.material.card.MaterialCardView>
