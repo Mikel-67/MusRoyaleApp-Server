@@ -30,3 +30,4 @@ Aplikazioak TCP zerbitzarira konektatzeko **host** eta **port** balioak behar di
 ### Android Emulator oharra
 Zerbitzaria zure PC-an badago eta aplikazioa **emuladorean** exekutatzen baduzu:
 - erabili **`10.0.2.2`** host gisa (PC-ko localhost-era heltzeko).
+- Aldaketa hau **"PartidaActivity"** Egin behar da, 56. lerroan **serverHost** izena daukan balorean
