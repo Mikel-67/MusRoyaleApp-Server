@@ -44,10 +44,6 @@ La partida se desarrolla entre 4 jugadores (por parejas) siguiendo los lances cl
 
 ---
 
-## 🛠️ Guía de Instalación y Despliegue
-
-Sigue estos pasos detallados para configurar el entorno de desarrollo y ejecutar la aplicación.
-
 ### 1. Clonar el Repositorio
 Copia el proyecto a tu máquina local:
 ```bash
