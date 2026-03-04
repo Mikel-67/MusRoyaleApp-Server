@@ -1,23 +1,15 @@
-# MusRoyalePC.Tests
+## Test Suite Overview
 
-Karpeta honek **MusRoyale** WPF bezeroaren test proiektua biltzen du (C#). Helburua aplikazioaren logika (ViewModel-ak, komandoak, zerbitzuak eta abar) egiaztatzea da, erregresioak saihesteko.
+This section provides a brief description of the purpose and assertions of each test file within the project:
 
-## Edukia
+- **BikoteakViewModelTests.cs**:  
+  - Validates the functionality of the BikoteakViewModel, including property changes and command execution.
 
-- Unit test klaseak (adib. `LoginTests`, `LoginFirebaseTests`, `RelayCommandTests`, `BikoteakViewModelTests`)
-- Proiektu fitxategia: `MusRoyalePC.Tests.csproj`
+- **LoginTests.cs**:  
+  - Tests the login process to ensure users can authenticate and handles invalid credentials properly.
 
-## Nola exekutatu testak
+- **LoginFirebaseTests.cs**:  
+  - Verifies the integration with Firebase for user authentication, checking responses for valid and invalid logins.
 
-### Visual Studio
-1. Ireki soluzioa: `MusRoyale_WPF/MusRoyalePC/MusRoyalePC.sln`
-2. **Test Explorer** ireki.
-3. **Run All**.
-
-### CLI (aukera)
-Testak komando lerrotik exekutatzeko (inguruneak onartzen badu):
-- `dotnet test MusRoyale_WPF/MusRoyalePC.Tests/MusRoyalePC.Tests.csproj`
-
-## Oharra
-
-Testen egitura eta dependentziak `.csproj` fitxategian definitzen dira. Test bat gehitzean, gomendagarria da izendapen argia erabiltzea eta Arrange/Act/Assert patroia jarraitzea.
+- **RelayCommandTests.cs**:  
+  - Confirms the behavior of the RelayCommand class, ensuring commands execute correctly and can be enabled or disabled as expected.
