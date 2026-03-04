@@ -21,9 +21,3 @@ README hau nahita **sarrerakoa** da: proiektuaren ikuspegi orokorra eta repoaren
 - `MusRoyale_AndroidApp/` — Android bezeroa (Kotlin)
 - `MusRoyale_WPF/` — WPF bezeroa (C#)
 - `MusServerTCP/` — TCP zerbitzaria (C#)
-
-## Egoera / Hurrengo urratsak (TODO)
-
-- Komunikazio protokoloaren dokumentazioa (mezu motak, formatua, erroreak)
-- Konfigurazio aukerak (host/port, ingurune desberdinak)
-- Testak eta CI (build + test automatikoki)
