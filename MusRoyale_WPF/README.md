@@ -24,8 +24,10 @@ Aplikazioak TCP zerbitzarira konektatzeko **host** eta **port** balioak behar di
 
 - **Portua (zerbitzarian):** `13000`
 - **Host-a:** zerbitzaria exekutatzen ari den makinaren IP/hostname-a
+- **MainViewModel** fitxategian **127** lerroan ipServer izena daukan balorean aldatu (Lokalean bada 127.0.0.0)
+- **FireBase:** aplikazioa abiarazteko firebase kredentzial batzuk beharko dira. Kredentzial horiek ezin dira github-era igo. Eskuratzeko **goyamikel7@gmail.com** korreoan eskatu eta behin jasota, **FirestoreService.cs** fitxategian 21. lerroan, bidalitako .json-aren helbidea sartu (Adb: "D:\\MusRoyalePC\\MusRoyalePC\\musroyale-488aa-b11b31e38238.json")
 
-## Barrutik (labur): proiektuaren atal nagusiak
+## Barrutik: proiektuaren atal nagusiak
 
 WPF aplikazioa normalean geruza hauetan antolatzen da:
 
