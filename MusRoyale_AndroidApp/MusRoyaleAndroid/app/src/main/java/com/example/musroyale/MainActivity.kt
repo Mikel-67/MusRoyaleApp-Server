@@ -1,10 +1,14 @@
 package com.example.musroyale
 
 import Torneo
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.app.PendingIntent
 import android.content.Context
 import android.content.Context.MODE_PRIVATE
 import android.content.Intent
 import android.graphics.Color
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.MotionEvent
@@ -32,6 +36,10 @@ import com.google.android.material.card.MaterialCardView
 import com.google.firebase.database.FirebaseDatabase
 import kotlin.text.toInt
 import android.os.CountDownTimer // Importante importar esto
+import androidx.core.app.NotificationCompat
+import androidx.core.app.NotificationManagerCompat
+import com.google.firebase.firestore.DocumentChange
+import com.google.firebase.messaging.FirebaseMessaging
 
 class MainActivity : BaseActivity() {
     private lateinit var binding: ActivityMainBinding
@@ -64,7 +72,6 @@ class MainActivity : BaseActivity() {
             loadFragment(HomeFragment())
         }
         binding.btnTournament.setOnClickListener {
-            // Asegúrate de que 'TournamentActivity' sea el nombre correcto de tu clase
             val intent = Intent(this, TournamentActivity::class.java)
             startActivity(intent)
         }
@@ -82,11 +89,26 @@ class MainActivity : BaseActivity() {
         validarSesionUnica(currentUserId!!)
         escucharSolicitudes()
         escucharDatosDelTorneo()
+        createNotificationChannel()
 
-        // --- LÓGICA DE RANGOS POR ELO ---
 
 
     }
+    private fun createNotificationChannel() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val name = "Torneos"
+            val descriptionText = "Avisos de nuevos torneos de Mus"
+            val importance = NotificationManager.IMPORTANCE_HIGH
+            val channel = NotificationChannel("TORNEO_CHANNEL", name, importance).apply {
+                description = descriptionText
+            }
+            val notificationManager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
+            notificationManager.createNotificationChannel(channel)
+        }
+    }
+
+
+
     private fun escucharDatosDelTorneo() {
         db.collection("Tournaments")
             .whereNotEqualTo("estado", "FINALIZADO")

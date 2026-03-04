@@ -30,6 +30,7 @@ class TournamentActivity : AppCompatActivity() {
     private lateinit var txtStatus: TextView
     private lateinit var title: TextView
     private var isTimerRunning = false
+    private var entradaIniciada = false // Para evitar múltiples entradas automáticas
     private var timerEjecutandose = false // Para que no se duplique el hilo del timer
     private var countdownFinished = false // Para saber si ya pasó la espera inicial
 
@@ -74,37 +75,55 @@ class TournamentActivity : AppCompatActivity() {
                 val torneo = snapshot?.toObject(Torneo::class.java) ?: return@addSnapshotListener
 
                 val ahora = System.currentTimeMillis()
-                val esperaMs = 15 * 60 * 1000 // 15 min bloqueo
-                val inscripcionMs = 10 * 60 * 1000 // 10 min inscripción
+                val esperaMs = 1 * 60 * 1000 // 1 min bloqueo
+                val inscripcionMs = 1 * 60 * 1000 // 1 min inscripción (tiempo límite)
 
                 val tiempoHabilitarInscripcion = torneo.createdAt + esperaMs
-                val tiempoInicioTorneo = tiempoHabilitarInscripcion + inscripcionMs
+                val tiempoCierreTorneo = tiempoHabilitarInscripcion + inscripcionMs
 
                 when {
+                    // FASE 1: Bloqueo inicial
                     ahora < tiempoHabilitarInscripcion -> {
                         iniciarContadorReal(tiempoHabilitarInscripcion)
                     }
 
-                    // FASE 2: Inscripciones abiertas por 10 minutos
-                    torneo.estado == "INSCRIPCION" && ahora < tiempoInicioTorneo -> {
-                        // Detenemos cualquier timer de espera y mostramos UI de inscripción
+                    // FASE 2: Inscripción abierta con tiempo límite
+                    torneo.estado == "INSCRIPCION" -> {
                         isTimerRunning = false
                         actualizarUI(torneo)
 
-                        // Si nadie ha disparado el inicio automático, lo preparamos
-                        if (!timerEjecutandose) {
-                            prepararInicioAutomatico(tiempoInicioTorneo)
+                        // Si el tiempo límite ya pasó y el torneo sigue en "INSCRIPCION"
+                        // significa que no se llenó, pero el tiempo se agotó.
+                        if (ahora >= tiempoCierreTorneo) {
+                            iniciarTorneoAutomaticamente()
+                        } else if (!timerEjecutandose) {
+                            // Iniciamos un timer visual o interno para cerrar el torneo al minuto
+                            prepararCierrePorTiempo(tiempoCierreTorneo)
                         }
                     }
-
-                    // FASE 3: El tiempo se acabó, empezar torneo
-                    torneo.estado == "INSCRIPCION" && ahora >= tiempoInicioTorneo -> {
-                        iniciarTorneoAutomaticamente()
+                    torneo.estado == "EN_CURSO" -> {
+                        timerEjecutandose = false // Limpiamos el timer
+                        actualizarUI(torneo)
                     }
 
                     else -> actualizarUI(torneo)
                 }
             }
+    }
+    private fun prepararCierrePorTiempo(tiempoFinal: Long) {
+        timerEjecutandose = true
+        val restante = tiempoFinal - System.currentTimeMillis()
+
+        object : android.os.CountDownTimer(restante, 1000) {
+            override fun onTick(ms: Long) {
+                // Puedes usar un TextView para mostrar "Cierre en: 00:XX"
+                txtStatus.text = "Inscripciones cierran en: ${ms / 1000}s"
+            }
+            override fun onFinish() {
+                timerEjecutandose = false
+                iniciarTorneoAutomaticamente()
+            }
+        }.start()
     }
     private fun prepararInicioAutomatico(tiempoFinal: Long) {
         timerEjecutandose = true
@@ -122,15 +141,11 @@ class TournamentActivity : AppCompatActivity() {
         }.start()
     }
     private fun iniciarContadorReal(tiempoFinal: Long) {
-        btnAction.isEnabled = false
-
-        // Evitamos crear múltiples timers
         if (isTimerRunning) return
         isTimerRunning = true
+        btnAction.isEnabled = false
 
-        val tiempoRestante = tiempoFinal - System.currentTimeMillis()
-
-        object : android.os.CountDownTimer(tiempoRestante, 1000) {
+        object : android.os.CountDownTimer(tiempoFinal - System.currentTimeMillis(), 1000) {
             override fun onTick(ms: Long) {
                 val min = (ms / 60000)
                 val seg = (ms % 60000) / 1000
@@ -141,8 +156,7 @@ class TournamentActivity : AppCompatActivity() {
                 isTimerRunning = false
                 btnAction.isEnabled = true
                 btnAction.text = "INSCRIBIRSE"
-                // Refrescamos para habilitar el botón medieval
-                buscarTorneoActivo()
+                // No necesitamos llamar a buscarTorneo, el SnapshotListener detectará el paso del tiempo
             }
         }.start()
     }
@@ -200,8 +214,10 @@ class TournamentActivity : AppCompatActivity() {
                 bracketContainer.addView(myMatchView)
 
                 // --- CUENTA ATRÁS 24 HORAS EN EL BOTÓN ---
-                iniciarCuentaAtras(torneo.startTime)
-
+                if (!entradaIniciada) {
+                    entradaIniciada = true
+                    iniciarCuentaAtras(torneo.startTime, miMatch)
+                }
                 btnAction.text = "JOKATU / JUGAR"
                 btnAction.setBackgroundResource(R.drawable.bg_button_magic)
                 btnAction.setOnClickListener {
@@ -229,6 +245,8 @@ class TournamentActivity : AppCompatActivity() {
         }
     }
     private fun entrarAPartidaTorneo(match: Match) {
+        btnAction.isEnabled = false // Bloqueo inmediato del botón
+
         val intent = Intent(this, PartidaActivity::class.java).apply {
             putExtra("ES_TORNEO", true)
             putExtra("ID_TORNEO", torneoId)
@@ -236,19 +254,22 @@ class TournamentActivity : AppCompatActivity() {
             putExtra("EXTRA_CODE", match.id)
         }
 
-        val delay: Long = when {
-            match.equipo1[0] == currentUserId -> 0L
-            match.equipo2[0] == currentUserId -> 500L
-            match.equipo1[1] == currentUserId -> 1000L
-            match.equipo2[1] == currentUserId -> 1500L
+        // Tu orden específico
+        val delay: Long = when (currentUserId) {
+            match.equipo1[0] -> 0L      // Creador E1
+            match.equipo2[0] -> 500L    // Etsai (Creador E2)
+            match.equipo1[1] -> 1000L   // Taldekide E1
+            match.equipo2[1] -> 1500L   // Taldekide E2
             else -> 0L
         }
 
         android.os.Handler(android.os.Looper.getMainLooper()).postDelayed({
+            // Verificamos una última vez antes de saltar
             startActivity(intent)
             finish()
         }, delay)
     }
+
 
     // --- NUEVA FUNCIÓN PARA BUSCAR DATOS DE USUARIOS ---
     private fun configurarNuevoDisenoPartida(view: android.view.View, match: Match) {
@@ -293,58 +314,41 @@ class TournamentActivity : AppCompatActivity() {
         cargarUsuario(match.equipo2[0], imgP3, txtTeam2Names, true)
         cargarUsuario(match.equipo2[1], imgP4, txtTeam2Names, false)
     }
-    private fun iniciarCuentaAtras(fechaInicioMs: Long) {
-        val ahora = System.currentTimeMillis()
-        val diferenciaMs = fechaInicioMs - ahora
+    private fun iniciarCuentaAtras(fechaInicioMs: Long, match: Match) {
+        val tiempoPreparacion = 30000L
+        btnAction.isEnabled = false
 
-        if (diferenciaMs > 0) {
-            btnAction.isEnabled = false
+        object : android.os.CountDownTimer(tiempoPreparacion, 1000) {
+            override fun onTick(ms: Long) {
+                val seg = ms / 1000
+                btnAction.text = String.format("ENTRANDO EN 00:%02d", seg)
+            }
 
-            object : android.os.CountDownTimer(diferenciaMs, 1000) {
-                override fun onTick(millisUntilFinished: Long) {
-                    val minutos = (millisUntilFinished  / 60000)
-                    val segundos = (millisUntilFinished % 60000) / 1000
-                    btnAction.text = String.format("JUGAR EN %02d:%02d", minutos, segundos)
-                }
-
-                override fun onFinish() {
-                    btnAction.isEnabled = true
-                    btnAction.text = "¡JUGAR AHORA!"
-                    // Asumiendo que usas tu drawable de botón mágico
-                    btnAction.setBackgroundResource(R.drawable.bg_button_magic)
-                }
-            }.start()
-        } else {
-            // Ya pasó el tiempo
-            btnAction.isEnabled = true
-            btnAction.text = "¡JUGAR AHORA!"
-            btnAction.setBackgroundResource(R.drawable.bg_button_magic)
-        }
+            override fun onFinish() {
+                btnAction.text = "¡ENTRANDO!"
+                // LLAMADA AUTOMÁTICA AL FINALIZAR EL TIMER
+                entrarAPartidaTorneo(match)
+            }
+        }.start()
     }
     private fun inscribirUsuario() {
         if (torneoId.isEmpty() || currentUserId.isEmpty()) return
 
-        // Obtenemos el documento para comprobar la capacidad actual
         db.collection("Tournaments").document(torneoId).get()
             .addOnSuccessListener { document ->
                 val torneo = document.toObject(Torneo::class.java) ?: return@addOnSuccessListener
 
-                // --- COMPROBAR SI YA ESTÁ LLENO USANDO maxJugadores ---
                 if (torneo.inscritos.size >= torneo.maxJugadores) {
                     Toast.makeText(this, "Torneo lleno", Toast.LENGTH_SHORT).show()
                     return@addOnSuccessListener
                 }
 
-                // Añadir usuario
                 db.collection("Tournaments").document(torneoId)
                     .update("inscritos", com.google.firebase.firestore.FieldValue.arrayUnion(currentUserId))
                     .addOnSuccessListener {
-                        Toast.makeText(this, "¡Inscrito!", Toast.LENGTH_SHORT).show()
-
-                        // --- COMPROBAR SI SE LLENÓ JUSTO AHORA ---
-                        // Comparamos el tamaño nuevo (+1) con maxJugadores
+                        // SI SE LLENA CON ESTA INSCRIPCIÓN:
                         if (torneo.inscritos.size + 1 >= torneo.maxJugadores) {
-                            iniciarTorneoAutomaticamente()
+                            iniciarTorneoAutomaticamente() // Inicio inmediato por lleno
                         }
                     }
             }
@@ -354,34 +358,29 @@ class TournamentActivity : AppCompatActivity() {
         db.collection("Tournaments").document(torneoId).get()
             .addOnSuccessListener { document ->
                 val torneo = document.toObject(Torneo::class.java) ?: return@addOnSuccessListener
-                val participantes = torneo.inscritos.shuffled()
 
-                // --- VALIDACIÓN: Mínimo 4 jugadores para un 2vs2 ---
-                if (participantes.size < 4) {
+                // Si por alguna razón se intenta iniciar con menos de 4, lo borramos
+                if (torneo.inscritos.size < 4) {
                     db.collection("Tournaments").document(torneoId).delete()
-                        .addOnSuccessListener {
-                            Toast.makeText(this, "Torneo cancelado: Participantes insuficientes", Toast.LENGTH_LONG).show()
-                            finish() // Cerramos el lobby
-                        }
+                    finish()
                     return@addOnSuccessListener
                 }
 
-                // --- Lógica normal de generación de matches ---
-                val totalJugadores = participantes.size
+                val participantes = torneo.inscritos.shuffled()
                 val nuevosMatches = mutableMapOf<String, Match>()
 
+                // Lógica de rondas (Semifinales, Cuartos...)
                 val nombreRonda = when {
-                    totalJugadores <= 4 -> "Semifinales"
-                    totalJugadores <= 8 -> "Cuartos"
-                    totalJugadores <= 16 -> "Octavos"
+                    participantes.size <= 4 -> "Semifinales"
+                    participantes.size <= 8 -> "Cuartos"
                     else -> "Ronda 1"
                 }
 
                 var matchCount = 1
-                for (i in 0 until totalJugadores step 4) {
-                    if (i + 3 < totalJugadores) {
+                for (i in 0 until participantes.size step 4) {
+                    if (i + 3 < participantes.size) {
                         val matchId = "m${matchCount}"
-                        val match = Match(
+                        nuevosMatches[matchId] = Match(
                             id = matchId,
                             equipo1 = listOf(participantes[i], participantes[i+1]),
                             equipo2 = listOf(participantes[i+2], participantes[i+3]),
@@ -389,22 +388,21 @@ class TournamentActivity : AppCompatActivity() {
                             rondaNombre = nombreRonda,
                             estado = "ESPERA"
                         )
-                        nuevosMatches[matchId] = match
                         matchCount++
                     }
                 }
 
-                val tiempoInicio = System.currentTimeMillis() + (24 * 60 * 60 * 1000)
                 val updates = mapOf(
                     "estado" to "EN_CURSO",
                     "matches" to nuevosMatches,
-                    "startTime" to tiempoInicio,
+                    "startTime" to System.currentTimeMillis(),
                     "rondaActual" to 1
                 )
 
                 db.collection("Tournaments").document(torneoId).update(updates)
             }
     }
+
 
     private fun desinscribirUsuario() { // NUEVO
         db.collection("Tournaments").document(torneoId)

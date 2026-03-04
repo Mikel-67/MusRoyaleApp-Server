@@ -310,9 +310,7 @@ class PartidaActivity : AppCompatActivity() {
 
                 while (true) {
                     val serverMsg = reader.readLine() ?: break
-                    withContext(Dispatchers.Main) {
-                        findViewById<TextView>(R.id.txtRondaActual).text = "MUS"
-                    }
+
 
                     when {
                         serverMsg.startsWith("ACTION:") -> {
@@ -340,6 +338,7 @@ class PartidaActivity : AppCompatActivity() {
                         serverMsg.startsWith("RONDA:") -> {
                             val ronda = serverMsg.substringAfter("RONDA:")
                             withContext(Dispatchers.Main) {
+
                                 findViewById<MaterialCardView>(R.id.containerInfoJuego).visibility = View.VISIBLE
                                 roundLabel.text = ronda
                                 findViewById<TextView>(R.id.txtRondaActual).text = ronda
@@ -452,7 +451,9 @@ class PartidaActivity : AppCompatActivity() {
 
                         serverMsg == "GRANDES" || serverMsg == "PEQUEÑAS" || serverMsg == "PARES" || serverMsg == "JUEGO" || serverMsg == "PUNTO" -> {
                             withContext(Dispatchers.Main) {
+                                resetDecisionStateForNewRound()
                                 roundLabel.text = serverMsg
+
                                 toggleEnvidoButtons(visible = true)
                                 startTurnTimer("paso")
                                 Toast.makeText(this@PartidaActivity, "$serverMsg jolasten!", Toast.LENGTH_SHORT).show()
@@ -466,16 +467,20 @@ class PartidaActivity : AppCompatActivity() {
                             writer.newLine()
                             writer.flush()
 
-                            // CORRECCIÓN CRÍTICA: Todo esto en Main para evitar el crash al cambiar de ronda
                             withContext(Dispatchers.Main) {
                                 ocultarTodo()
-                                // Aseguramos que los botones específicos también se oculten
                                 btnQuiero.visibility = View.GONE
                                 btnPasar.visibility = View.GONE
+                                // dejar limpio al salir de la ronda
+                                decisionContinuation = null
+                                gameTimer?.cancel()
+                                gameTimer = null
                             }
+
                             ordagoOn = false
                             envidoOn = false
                         }
+
 
                         serverMsg == "ORDAGO" -> ordagoOn = true
                         serverMsg == "ENVIDO" -> envidoOn = true
@@ -556,6 +561,34 @@ class PartidaActivity : AppCompatActivity() {
             } finally {
                 socket.close()
             }
+        }
+    }
+    private var envitesTotales = 0
+
+    private fun gestionarContadorEnvites(puntos: String, reset: Boolean = false) {
+        val container = findViewById<LinearLayout>(R.id.containerEnvites) ?: return
+        val txtContador = findViewById<TextView>(R.id.txtContadorEnvites) ?: return
+        container.visibility = View.VISIBLE // Se oculta totalmente
+
+        if (reset) {
+            envitesTotales = 0
+            container.visibility = View.GONE // Se oculta totalmente
+            return
+        }
+
+        if (puntos.lowercase() == "ordago") {
+            txtContador.text = "¡ORDAGO!"
+            txtContador.setTextColor(Color.RED)
+        } else {
+            val pts = puntos.toIntOrNull() ?: 0
+            envitesTotales += pts
+            txtContador.text = envitesTotales.toString()
+            txtContador.setTextColor(Color.parseColor("#1B5E20")) // Verde oscuro
+        }
+
+        // Solo se hace visible si hay puntos o es órdago
+        if (envitesTotales > 0 || puntos.lowercase() == "ordago") {
+            container.visibility = View.VISIBLE
         }
     }
     private fun mostrarDialogoFalloRed() {
@@ -640,7 +673,6 @@ class PartidaActivity : AppCompatActivity() {
         // Actualizamos el marcador de arriba de 5 en 5 inmediatamente
         actualizarMarcadorPrincipal()
 
-        // --- El resto de tu lógica para rellenar el marcadorPro ---
         val colorGanado = Color.parseColor("#4CAF50")
         val colorPerdido = Color.parseColor("#F44336")
         val colorResultado = if (ganadorRonda == miTalde) colorGanado else colorPerdido
@@ -776,7 +808,6 @@ class PartidaActivity : AppCompatActivity() {
             val icono = view.findViewById<ImageView>(R.id.imgCopa)
             val btn = view.findViewById<Button>(R.id.btnIrtenFinal)
 
-            // Configuración de textos según resultado
             if (ganaste) {
                 verificarYNotificarGanador(miTalde)
 
@@ -862,11 +893,9 @@ class PartidaActivity : AppCompatActivity() {
             try {
                 val prefs = getSharedPreferences("UserPrefs", MODE_PRIVATE)
                 val miId = prefs.getString("userRegistrado", "") ?: ""
-
                 val yo = listaEsperaJugadores.find { it.second == miId }
                 val miTurno = yo?.third ?: 0
 
-                // 1. Determinar la posición relativa
                 val posicion = when {
                     serverId == miTurno -> "Bottom"
                     serverId == (miTurno + 1) % 4 -> "Right"
@@ -874,40 +903,115 @@ class PartidaActivity : AppCompatActivity() {
                     else -> "Top"
                 }
 
-                // 2. Buscar el TextView correspondiente en el layout
                 val viewId = resources.getIdentifier("status$posicion", "id", packageName)
-                val statusTextView = findViewById<TextView>(viewId)
+                val statusTv = findViewById<TextView>(viewId) ?: return@runOnUiThread
 
-                statusTextView?.apply {
-                    text = mensaje.uppercase()
-                    visibility = View.VISIBLE
-                    alpha = 0f
-                    translationY = 30f // Efecto de subir
+                val msg = mensaje.uppercase()
+                statusTv.text = msg
 
-                    // Animación de entrada
-                    animate()
-                        .alpha(1f)
-                        .translationY(0f)
-                        .setDuration(400)
-                        .withEndAction {
-                            // Se queda 3 segundos y desaparece
-                            postDelayed({
-                                animate()
-                                    .alpha(0f)
-                                    .translationY(-20f) // Efecto de seguir subiendo al irse
-                                    .setDuration(400)
-                                    .withEndAction { visibility = View.GONE }
-                                    .start()
-                            }, 3000)
-                        }
-                        .start()
+                // --- RESET TOTAL (Vuelve al estado inicial del XML) ---
+                statusTv.alpha = 1f
+                statusTv.setShadowLayer(0f, 0f, 0f, 0)
+                statusTv.setBackgroundResource(R.drawable.bg_status_elegant)
+                statusTv.setTypeface(null, android.graphics.Typeface.BOLD)
+                statusTv.setTextSize(android.util.TypedValue.COMPLEX_UNIT_SP, 12f)
+                statusTv.setTextColor(Color.parseColor("#4E342E"))
+
+                when {
+                    // ÓRDAGO: Rojo impacto
+                    msg.contains("ORDAGO") || msg.contains("HORDAGO") -> {
+                        statusTv.setBackgroundResource(R.drawable.bg_status_ordago)
+                        statusTv.setTextColor(Color.WHITE)
+                        statusTv.setTextSize(android.util.TypedValue.COMPLEX_UNIT_SP, 20f)
+                        statusTv.setShadowLayer(10f, 0f, 0f, Color.RED)
+                        ejecutarAnimacionImpacto(statusTv)
+                    }
+
+                    // PARES/JUEGO DAUKAT: Fondo verde oscuro y letras blancas
+                    (msg.contains("PARES") || msg.contains("JUEGO")) && msg.contains("DAUKAT") -> {
+                        // Si no creaste el XML bg_status_daukat, puedes usar Color.parseColor("#1B5E20")
+                        statusTv.setBackgroundResource(R.drawable.bg_status_daukat)
+                        statusTv.setTextColor(Color.WHITE)
+                        statusTv.setTextSize(android.util.TypedValue.COMPLEX_UNIT_SP, 15f)
+                        ejecutarAnimacionSuave(statusTv)
+                    }
+
+                    // PARES/JUEGO EZ DUT: Gris y un poco transparente (Normal)
+                    (msg.contains("PARES") || msg.contains("JUEGO")) && (msg.contains("EZ DUT") || msg.contains("EZ DAUKAT")) -> {
+                        statusTv.setTextColor(Color.parseColor("#757575"))
+                        statusTv.alpha = 0.6f
+                        ejecutarAnimacionSuave(statusTv)
+                    }
+
+                    // RESTO DE MENSAJES: No se toca nada (hereda el reset de arriba)
+                    else -> {
+                        ejecutarAnimacionSuave(statusTv)
+                    }
                 }
             } catch (e: Exception) {
-                Log.e("PartidaActivity", "Error mostrando status: ${e.message}")
+                Log.e("PartidaActivity", "Error en status: ${e.message}")
             }
         }
     }
 
+    // Animación para mensajes normales
+    private fun ejecutarAnimacionSuave(view: View) {
+        view.visibility = View.VISIBLE
+        view.alpha = 0f
+        view.translationY = 20f
+        view.animate()
+            .alpha(1f)
+            .translationY(0f)
+            .setDuration(300)
+            .withEndAction {
+                view.postDelayed({
+                    view.animate().alpha(0f).setDuration(500).withEndAction { view.visibility = View.GONE }.start()
+                }, 2500)
+            }.start()
+    }
+
+    // Animación "GOLPE EN LA MESA" para el Órdago
+    private fun ejecutarAnimacionImpacto(view: View) {
+        view.visibility = View.VISIBLE
+        view.alpha = 0f
+        view.scaleX = 0.5f
+        view.scaleY = 0.5f
+        view.animate()
+            .alpha(1f)
+            .scaleX(1.2f)
+            .scaleY(1.2f)
+            .setDuration(200)
+            .withEndAction {
+                view.animate().scaleX(1f).scaleY(1f).setDuration(100).start()
+                // Vibración visual opcional
+                val shake = android.view.animation.TranslateAnimation(-5f, 5f, 0f, 0f).apply {
+                    duration = 50
+                    repeatCount = 5
+                    repeatMode = android.view.animation.Animation.REVERSE
+                }
+                view.startAnimation(shake)
+
+                view.postDelayed({
+                    view.animate().alpha(0f).setDuration(500).withEndAction { view.visibility = View.GONE }.start()
+                }, 4000)
+            }.start()
+    }
+    private fun resetDecisionStateForNewRound() {
+        // cancelar timer de respuesta local
+        gameTimer?.cancel()
+        gameTimer = null
+
+        // cancelar timer visual de barras por turno
+        countDownTimer?.cancel()
+        countDownTimer = null
+
+        // invalidar continuación previa para no reusar una ya completada
+        decisionContinuation = null
+
+        // limpiar UI de decisión
+        ocultarTodasLasBarras()
+        ocultarTodo()
+    }
     private var countDownTimer: CountDownTimer? = null
 
     private fun jokalarienInfo(taldea: Int, jokalariID: String, zerbitzariId: Int) {
@@ -1195,19 +1299,21 @@ class PartidaActivity : AppCompatActivity() {
     private fun startTurnTimer(autoResponse: String) {
         gameTimer?.cancel()
         val progressBar = findViewById<ProgressBar>(R.id.progressBottom)
+        progressBar.max = 100
+        progressBar.progress = 100
         progressBar.visibility = View.VISIBLE
 
-        gameTimer = object : android.os.CountDownTimer(30000, 100) {
+        gameTimer = object : android.os.CountDownTimer(10000, 100) {
             override fun onTick(millisUntilFinished: Long) {
-                progressBar.progress = (millisUntilFinished / 100).toInt()
+                val p = (millisUntilFinished / 100).toInt().coerceIn(0, 100)
+                progressBar.progress = p
             }
 
             override fun onFinish() {
                 progressBar.visibility = View.GONE
-                decisionContinuation?.let {
-                    if (it.isActive) {
-                        it.resume(autoResponse, null)
-                    }
+                val cont = decisionContinuation
+                if (cont != null && cont.isActive) {
+                    cont.resume(autoResponse, null)
                 }
             }
         }.start()
